@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use App\Models\Buyer;
-use Illuminate\Support\Str;
+use App\Models\Transaction;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class BuyerController extends Controller
 {
@@ -23,7 +24,7 @@ class BuyerController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
         $buyer = Buyer::create([
@@ -37,10 +38,35 @@ class BuyerController extends Controller
             'longitude' => $request->longitude,
         ]);
 
-        return response()->json([
-            'message' => 'Buyer registered successfully',
-            'data' => $buyer
-        ], 201);
+        // Auto login after register
+        Auth::guard('buyer')->login($buyer);
+
+        return redirect()->route('food.index');
+    }
+
+    public function login(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        if (Auth::guard('buyer')->attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->route('food.index');
+        }
+
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::guard('buyer')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/');
     }
 
     public function index()
@@ -66,5 +92,15 @@ class BuyerController extends Controller
             'message' => 'Retrieve buyer success',
             'data' => $buyer
         ], 200);
+    }
+    public function orders()
+    {
+        $buyerId = Auth::guard('buyer')->id();
+        $transactions = Transaction::where('buyer_id', $buyerId)
+            ->with('food') // Eager load food
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        return view('buyer.orders', compact('transactions'));
     }
 }

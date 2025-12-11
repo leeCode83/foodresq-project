@@ -14,45 +14,44 @@ class TransactionController extends Controller
 {
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'buyer_id' => 'required|exists:buyers,id',
-            'seller_id' => 'required|exists:sellers,id',
-            'food_id' => 'required|exists:foods,id',
-            'quantity' => 'required|integer|min:1',
-            'total_price' => 'required|numeric',
-            'payment_method' => 'required|in:CASH,TRANSFER,E_WALLET,CREDIT_CARD',
-            'pickup_time' => 'required|date',
-        ]);
+        $cart = session()->get('cart');
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+        if (!$cart) {
+            return redirect()->back()->with('error', 'Cart is empty!');
         }
 
-        // Check food availability
-        $food = Food::find($request->food_id);
-        if ($food->available_quantity < $request->quantity) {
-            return response()->json(['message' => 'Insufficient food quantity'], 400);
+        $buyerId = \Illuminate\Support\Facades\Auth::guard('buyer')->id(); // Assuming logged in buyer
+
+        if (!$buyerId) {
+             return redirect()->route('auth.buyer')->with('error', 'Please login first!');
         }
 
-        $transaction = Transaction::create([
-            'id' => Str::uuid(),
-            'order_number' => 'ORD-' . strtoupper(Str::random(10)),
-            'buyer_id' => $request->buyer_id,
-            'seller_id' => $request->seller_id,
-            'food_id' => $request->food_id,
-            'quantity' => $request->quantity,
-            'total_price' => $request->total_price,
-            'status' => 'PENDING',
-            'payment_method' => $request->payment_method,
-            'payment_status' => 'pending',
-            'pickup_code' => strtoupper(Str::random(6)),
-            'pickup_time' => $request->pickup_time,
-        ]);
+        foreach ($cart as $id => $details) {
+            // Check food availability
+            $food = Food::find($id);
+            if ($food->available_quantity < $details['quantity']) {
+                return redirect()->back()->with('error', 'Insufficient quantity for ' . $details['title']);
+            }
 
-        return response()->json([
-            'message' => 'Transaction created successfully',
-            'data' => $transaction
-        ], 201);
+            Transaction::create([
+                'id' => Str::uuid(),
+                'order_number' => 'ORD-' . strtoupper(Str::random(10)),
+                'buyer_id' => $buyerId,
+                'seller_id' => $details['seller_id'],
+                'food_id' => $id,
+                'quantity' => $details['quantity'],
+                'total_price' => $details['price'] * $details['quantity'],
+                'status' => 'PENDING', // Or PAID depending on payment flow simulation
+                'payment_method' => $request->payment_method,
+                'payment_status' => 'pending',
+                'pickup_code' => strtoupper(Str::random(6)),
+                'pickup_time' => now()->addHours(1), // Default pickup time
+            ]);
+        }
+
+        session()->forget('cart');
+
+        return redirect()->route('buyer.orders')->with('success', 'Order placed successfully!');
     }
 
     public function getByBuyer($buyerId)
@@ -112,9 +111,6 @@ class TransactionController extends Controller
 
         if ($newStatus === 'CANCELLED') {
             $transaction->cancelled_at = Carbon::now();
-            // Optionally restore stock if it was paid/reserved? 
-            // The requirement didn't specify restoring stock on cancel, only reducing on PAID.
-            // I'll stick to the requirement: "saat status transaksi sudah PAID, maka stok makanan yang dipesan juga akan ikut berkurang"
         }
 
         $transaction->save();
@@ -123,5 +119,36 @@ class TransactionController extends Controller
             'message' => 'Transaction status updated successfully',
             'data' => $transaction
         ], 200);
+    }
+
+    public function verify(Request $request)
+    {
+        $request->validate([
+            'pickup_code' => 'required|string',
+        ]);
+
+        $transaction = Transaction::where('pickup_code', $request->pickup_code)
+            ->where('status', '!=', 'COMPLETED')
+            ->first();
+
+        if (!$transaction) {
+            return redirect()->back()->with('error', 'Invalid or already completed pickup code.');
+        }
+
+        // Update status to COMPLETED
+        $transaction->status = 'COMPLETED';
+        $transaction->completed_at = now();
+        $transaction->payment_status = 'success'; // Ensure payment is marked success if not already
+        $transaction->save();
+
+        if ($transaction->payment_method == 'CASH') {
+             $food = Food::find($transaction->food_id);
+             if ($food) {
+                 $food->available_quantity -= $transaction->quantity;
+                 $food->save();
+             }
+        }
+
+        return redirect()->back()->with('success', 'Transaction verified and completed successfully!');
     }
 }

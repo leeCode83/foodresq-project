@@ -32,7 +32,7 @@ return new class extends Migration
             $table->string('payment_proof')->nullable();
             $table->enum('payment_status', ['pending', 'success', 'failed']);
             $table->string('pickup_code')->nullable();
-            $table->timestamp('pickup_time');
+            $table->timestamp('pickup_time')->nullable();
             $table->timestamp('pickup_verified_at')->nullable();
             $table->timestamps();
         });

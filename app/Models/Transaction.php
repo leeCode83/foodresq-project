@@ -39,4 +39,19 @@ class Transaction extends Model
         'pickup_time' => 'datetime',
         'pickup_verified_at' => 'datetime',
     ];
+
+    public function buyer()
+    {
+        return $this->belongsTo(Buyer::class);
+    }
+
+    public function seller()
+    {
+        return $this->belongsTo(Seller::class);
+    }
+
+    public function food()
+    {
+        return $this->belongsTo(Food::class);
+    }
 }

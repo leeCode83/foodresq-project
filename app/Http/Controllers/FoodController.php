@@ -28,7 +28,10 @@ class FoodController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            if ($request->wantsJson()) {
+                return response()->json($validator->errors(), 422);
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
         $food = Food::create([
@@ -48,32 +51,47 @@ class FoodController extends Controller
             'is_active' => true,
         ]);
 
-        return response()->json([
-            'message' => 'Food created successfully',
-            'data' => $food
-        ], 201);
+        if ($request->wantsJson()) {
+            return response()->json([
+                'message' => 'Food created successfully',
+                'data' => $food
+            ], 201);
+        }
+
+        return redirect()->route('seller.foods.index')->with('success', 'Food created successfully');
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $food = Food::find($id);
 
         if (!$food) {
-            return response()->json(['message' => 'Food not found'], 404);
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Food not found'], 404);
+            }
+            return redirect()->back()->with('error', 'Food not found');
         }
 
         $food->delete();
 
-        return response()->json(['message' => 'Food deleted successfully'], 200);
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Food deleted successfully'], 200);
+        }
+
+        return redirect()->route('seller.foods.index')->with('success', 'Food deleted successfully');
     }
 
     public function index()
     {
-        $foods = Food::paginate(10);
-        return response()->json([
-            'message' => 'Retrieve all foods success',
-            'data' => $foods
-        ], 200);
+        $foods = Food::where('available_quantity', '>', 0)->get();
+        return view('food.index', compact('foods'));
+    }
+
+    public function sellerIndex()
+    {
+        $sellerId = auth('seller')->id();
+        $foods = Food::where('seller_id', $sellerId)->orderBy('created_at', 'desc')->paginate(10);
+        return view('seller.foods.index', compact('foods'));
     }
 
     public function getBySeller($sellerId)
@@ -85,13 +103,20 @@ class FoodController extends Controller
         ], 200);
     }
 
-    public function getByCategory($category)
+    public function getByCategory(Request $request, $category)
     {
-        $foods = Food::where('category', $category)->paginate(10);
-        return response()->json([
-            'message' => 'Retrieve foods by category success',
-            'data' => $foods
-        ], 200);
+        $foods = Food::where('category', strtoupper($category))
+                     ->where('available_quantity', '>', 0)
+                     ->get();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'message' => 'Retrieve foods by category success',
+                'data' => $foods
+            ], 200);
+        }
+
+        return view('food.index', compact('foods'));
     }
 
     public function show($id)
@@ -99,13 +124,26 @@ class FoodController extends Controller
         $food = Food::find($id);
 
         if (!$food) {
-            return response()->json(['message' => 'Food not found'], 404);
+            return redirect()->route('food.index')->with('error', 'Food not found');
         }
 
-        return response()->json([
-            'message' => 'Retrieve food success',
-            'data' => $food
-        ], 200);
+        return view('food.detail', compact('food'));
+    }
+
+    public function edit($id)
+    {
+        $food = Food::find($id);
+        
+        if (!$food) {
+            return redirect()->route('seller.foods.index')->with('error', 'Food not found');
+        }
+
+        // Check ownership
+        if ($food->seller_id !== auth('seller')->id()) {
+             return redirect()->route('seller.foods.index')->with('error', 'Unauthorized');
+        }
+
+        return view('seller.foods.edit', compact('food'));
     }
 
     public function update(Request $request, $id)
@@ -113,7 +151,10 @@ class FoodController extends Controller
         $food = Food::find($id);
 
         if (!$food) {
-            return response()->json(['message' => 'Food not found'], 404);
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Food not found'], 404);
+            }
+            return redirect()->back()->with('error', 'Food not found');
         }
 
         $validator = Validator::make($request->all(), [
@@ -132,14 +173,21 @@ class FoodController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            if ($request->wantsJson()) {
+                return response()->json($validator->errors(), 422);
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
         $food->update($request->all());
 
-        return response()->json([
-            'message' => 'Food updated successfully',
-            'data' => $food
-        ], 200);
+        if ($request->wantsJson()) {
+            return response()->json([
+                'message' => 'Food updated successfully',
+                'data' => $food
+            ], 200);
+        }
+
+        return redirect()->route('seller.foods.index')->with('success', 'Food updated successfully');
     }
 }

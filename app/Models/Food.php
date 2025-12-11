@@ -34,4 +34,9 @@ class Food extends Model
         'pickup_time_end' => 'datetime',
         'is_active' => 'boolean',
     ];
+
+    public function seller()
+    {
+        return $this->belongsTo(Seller::class);
+    }
 }
