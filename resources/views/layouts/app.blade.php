@@ -9,10 +9,29 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     @stack('styles')
 </head>
 
-<body class="bg-light" style="font-family: 'Inter', sans-serif;">
+<body class="{{ Route::currentRouteName() !== 'landing.index' ? 'global-bg' : 'bg-light' }}"
+    style="font-family: 'Inter', sans-serif;">
+    @if(Route::currentRouteName() !== 'landing.index')
+        <style>
+            .global-bg {
+                background-image: url('{{ asset('background.jpeg') }}');
+                background-size: cover;
+                background-position: center;
+                background-attachment: fixed;
+                min-height: 100vh;
+            }
+
+            /* Ensure content is readable on top of background */
+            .global-bg .container {
+                position: relative;
+                z-index: 1;
+            }
+        </style>
+    @endif
 
     @yield('content')
 

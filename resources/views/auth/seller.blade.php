@@ -3,82 +3,73 @@
 @section('title', 'FoodResQ - Seller Auth')
 
 @section('content')
-    <!-- Navbar -->
-    <nav class="navbar navbar-light bg-white shadow-sm py-3 mb-5">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-success d-flex align-items-center gap-2"
-                href="{{ route('landing.index') }}">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                </svg>
-                FoodResQ
-            </a>
-            <span class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-bold">Seller Portal</span>
-        </div>
-    </nav>
-
-    <!-- Auth Container -->
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                    <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
-                        <ul class="nav nav-tabs card-header-tabs border-0" id="authTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button
-                                    class="nav-link active fw-bold text-dark border-0 border-bottom border-warning border-3 bg-transparent"
-                                    id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button"
-                                    role="tab">Seller Login</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold text-secondary border-0 bg-transparent"
-                                    id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button"
-                                    role="tab">Join as Partner</button>
-                            </li>
-                        </ul>
+    <div class="container-fluid min-vh-100 d-flex align-items-center p-0 overflow-hidden bg-white">
+        <div class="row w-100 m-0 min-vh-100">
+            <!-- Left Side: Form -->
+            <div class="col-lg-6 d-flex flex-column justify-content-center px-5 py-5 position-relative">
+                <!-- Back Button -->
+                <a href="{{ route('landing.index') }}"
+                    class="position-absolute top-0 start-0 m-4 text-dark text-decoration-none">
+                    <div class="border border-dark rounded-2 d-flex align-items-center justify-content-center"
+                        style="width: 40px; height: 40px;">
+                        <i class="bi bi-chevron-left fs-5"></i>
                     </div>
-                    <div class="card-body p-4">
-                        <div class="tab-content" id="authTabsContent">
+                </a>
 
-                            <!-- Login Form -->
-                            <div class="tab-pane fade show active" id="login" role="tabpanel">
-                                <form action="{{ route('seller.login.submit') }}" method="POST">
-                                    @csrf
-                                    <div class="mb-3">
-                                        <label class="form-label fw-semibold text-secondary small">Email Address</label>
-                                        <input type="email" name="email" class="form-control bg-light border-0 py-2"
-                                            placeholder="restaurant@example.com" required>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label class="form-label fw-semibold text-secondary small">Password</label>
-                                        <input type="password" name="password" class="form-control bg-light border-0 py-2"
-                                            placeholder="••••••••" required>
-                                        <a href="{{ route('landing.index') }}"
-                                            class="text-decoration-none text-secondary small fw-semibold">← Back to Home</a>
-                                    </div>
-                                    <button type="submit"
-                                        class="btn btn-dark w-100 rounded-pill py-2 fw-bold shadow-sm">Login to
-                                        Dashboard</button>
-                                </form>
-                            </div>
+                <div class="w-100 mx-auto" style="max-width: 500px;">
+                    <!-- Tabs -->
+                    <ul class="nav nav-pills mb-4 gap-3" id="authTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active rounded-pill px-4 fw-bold" id="login-tab" data-bs-toggle="tab"
+                                data-bs-target="#login" type="button" role="tab"
+                                style="background-color: #FFC107; color: #000;">Seller Login</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link rounded-pill px-4 fw-bold text-secondary bg-light" id="register-tab"
+                                data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">Join as
+                                Partner</button>
+                        </li>
+                    </ul>
 
-                            <!-- Register Form -->
-                            <div class="tab-pane fade" id="register" role="tabpanel">
-                                <form action="{{ route('seller.register.submit') }}" method="POST">
-                                    @csrf
-                                    <div class="mb-3">
-                                        <label class="form-label fw-semibold text-secondary small">Business Name</label>
-                                        <input type="text" name="business_name" class="form-control bg-light border-0 py-2"
+                    <div class="tab-content" id="authTabsContent">
+                        <!-- Login Form -->
+                        <div class="tab-pane fade show active" id="login" role="tabpanel">
+                            <h1 class="fw-bold mb-4 display-5">Partner Login</h1>
+                            <form action="{{ route('seller.login.submit') }}" method="POST">
+                                @csrf
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold small">Email Address</label>
+                                    <input type="email" name="email"
+                                        class="form-control bg-light border-0 rounded-3 py-3 px-3"
+                                        placeholder="restaurant@example.com" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold small">Password</label>
+                                    <input type="password" name="password"
+                                        class="form-control bg-light border-0 rounded-3 py-3 px-3" placeholder="••••••••"
+                                        required>
+                                </div>
+                                <button type="submit" class="btn w-100 rounded-3 py-3 fw-bold shadow-sm"
+                                    style="background-color: #FFC107; color: #000;">Login to Dashboard</button>
+                            </form>
+                        </div>
+
+                        <!-- Register Form -->
+                        <div class="tab-pane fade" id="register" role="tabpanel">
+                            <h1 class="fw-bold mb-4 display-5">Become a Partner</h1>
+                            <form action="{{ route('seller.register.submit') }}" method="POST">
+                                @csrf
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <label class="form-label fw-bold small">Business Name</label>
+                                        <input type="text" name="business_name"
+                                            class="form-control bg-light border-0 rounded-3 py-3 px-3"
                                             placeholder="My Restaurant" required>
                                     </div>
-                                    <div class="mb-3">
-                                        <label class="form-label fw-semibold text-secondary small">Business Type</label>
-                                        <select name="business_type" class="form-select bg-light border-0 py-2" required>
+                                    <div class="col-md-12">
+                                        <label class="form-label fw-bold small">Business Type</label>
+                                        <select name="business_type"
+                                            class="form-select bg-light border-0 rounded-3 py-3 px-3" required>
                                             <option value="" selected disabled>Select Type</option>
                                             <option value="RESTAURANT">Restaurant</option>
                                             <option value="BAKERY">Bakery</option>
@@ -90,32 +81,48 @@
                                             <option value="OTHER">Other</option>
                                         </select>
                                     </div>
-                                    <div class="mb-3">
-                                        <label class="form-label fw-semibold text-secondary small">Email Address</label>
-                                        <input type="email" name="email" class="form-control bg-light border-0 py-2"
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small">Email Address</label>
+                                        <input type="email" name="email"
+                                            class="form-control bg-light border-0 rounded-3 py-3 px-3"
                                             placeholder="restaurant@example.com" required>
                                     </div>
-                                    <div class="mb-3">
-                                        <label class="form-label fw-semibold text-secondary small">Password</label>
-                                        <input type="password" name="password" class="form-control bg-light border-0 py-2"
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold small">Password</label>
+                                        <input type="password" name="password"
+                                            class="form-control bg-light border-0 rounded-3 py-3 px-3"
                                             placeholder="••••••••" required>
                                     </div>
-                                    <div class="mb-3">
-                                        <label class="form-label fw-semibold text-secondary small">Address</label>
-                                        <textarea name="address" class="form-control bg-light border-0 py-2" rows="2"
-                                            placeholder="Full Address" required></textarea>
+                                    <div class="col-md-12">
+                                        <label class="form-label fw-bold small">Address</label>
+                                        <textarea name="address" class="form-control bg-light border-0 rounded-3 py-3 px-3"
+                                            rows="2" placeholder="Full Address" required></textarea>
                                     </div>
-                                    <!-- Hidden fields for lat/long/hours for now or add inputs if needed -->
+                                    <!-- Hidden fields -->
                                     <input type="hidden" name="latitude" value="0">
                                     <input type="hidden" name="longitude" value="0">
                                     <input type="hidden" name="operating_hours" value="{}">
-
-                                    <button type="submit"
-                                        class="btn btn-warning text-white w-100 rounded-pill py-2 fw-bold shadow-sm">Register
-                                        Partner</button>
-                                </form>
-                            </div>
+                                </div>
+                                <div class="form-check mt-4 mb-4">
+                                    <input class="form-check-input" type="checkbox" value="" id="sellerTermsCheck" required>
+                                    <label class="form-check-label small text-secondary" for="sellerTermsCheck">
+                                        I've read and agree with the Terms of Service and Privacy Policy
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn w-100 rounded-3 py-3 fw-bold shadow-sm"
+                                    style="background-color: #FFC107; color: #000;">Register Partner</button>
+                            </form>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Image -->
+            <div class="col-lg-6 d-none d-lg-block p-0 position-relative">
+                <div class="h-100 w-100"
+                    style="background-image: url('{{ asset('landing_bg.png') }}'); background-size: cover; background-position: center;">
+                    <div class="position-absolute top-0 start-0 w-100 h-100"
+                        style="background: linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 20%);">
                     </div>
                 </div>
             </div>
@@ -129,19 +136,20 @@
             const loginTab = document.getElementById('login-tab');
             const registerTab = document.getElementById('register-tab');
 
-            const activeClasses = ['fw-bold', 'text-dark', 'border-bottom', 'border-warning', 'border-3'];
-            const inactiveClasses = ['fw-semibold', 'text-secondary'];
+            function toggleTabs(active, inactive) {
+                active.classList.add('active');
+                active.style.backgroundColor = '#FFC107';
+                active.style.color = '#000';
+                active.classList.remove('text-secondary', 'bg-light');
 
-            function updateTabs(activeTab, inactiveTab) {
-                activeTab.classList.add(...activeClasses);
-                activeTab.classList.remove(...inactiveClasses);
-
-                inactiveTab.classList.remove(...activeClasses);
-                inactiveTab.classList.add(...inactiveClasses);
+                inactive.classList.remove('active');
+                inactive.style.backgroundColor = '';
+                inactive.style.color = '';
+                inactive.classList.add('text-secondary', 'bg-light');
             }
 
-            loginTab.addEventListener('shown.bs.tab', () => updateTabs(loginTab, registerTab));
-            registerTab.addEventListener('shown.bs.tab', () => updateTabs(registerTab, loginTab));
+            loginTab.addEventListener('click', () => toggleTabs(loginTab, registerTab));
+            registerTab.addEventListener('click', () => toggleTabs(registerTab, loginTab));
         });
     </script>
 @endpush
