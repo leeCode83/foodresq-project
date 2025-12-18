@@ -19,12 +19,13 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <!-- Search -->
-            <div class="mx-auto my-3 my-lg-0" style="max-width: 400px; width: 100%;">
+            <form action="{{ route('food.search') }}" method="GET" class="mx-auto my-3 my-lg-0"
+                style="max-width: 400px; width: 100%;">
                 <div class="input-group">
-                    <input type="text" class="form-control rounded-pill bg-secondary-subtle border-0 px-4"
-                        placeholder="Search...">
+                    <input type="text" name="query" class="form-control rounded-pill bg-secondary-subtle border-0 px-4"
+                        placeholder="Search..." value="{{ request('query') }}">
                 </div>
-            </div>
+            </form>
 
             <!-- Links -->
             <ul class="navbar-nav align-items-center gap-3">

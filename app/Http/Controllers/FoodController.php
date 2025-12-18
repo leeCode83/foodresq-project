@@ -87,6 +87,20 @@ class FoodController extends Controller
         return view('food.index', compact('foods'));
     }
 
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+        
+        $foods = Food::where('available_quantity', '>', 0)
+                    ->where(function($q) use ($query) {
+                        $q->where('title', 'LIKE', "%{$query}%")
+                          ->orWhere('description', 'LIKE', "%{$query}%");
+                    })
+                    ->get();
+
+        return view('food.index', compact('foods'));
+    }
+
     public function sellerIndex()
     {
         $sellerId = auth('seller')->id();

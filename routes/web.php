@@ -13,6 +13,7 @@ Route::get('/', function () {return view('landing.index');})->name('landing.inde
 Route::get('/login', function () {return view('auth.buyer');})->name('auth.buyer');
 Route::get('/seller/login', function () {return view('auth.seller');})->name('auth.seller');
 Route::get('/browse', [FoodController::class, 'index'])->name('food.index');
+Route::get('/food/search', [FoodController::class, 'search'])->name('food.search');
 Route::get('/food/detail/{id}', [FoodController::class, 'show'])->name('food.detail');
 Route::get('/checkout', function () {return view('checkout.index');})->name('checkout.index');
 Route::get('/my-orders', [BuyerController::class, 'orders'])->name('buyer.orders');
